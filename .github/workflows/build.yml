@@ -33,10 +33,21 @@ jobs:
           }
           "VCPKG_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+      - name: Fetch CommonLibF4
+        shell: pwsh
+        run: |
+          git clone --depth 1 https://github.com/alandtse/CommonLibF4.git "$env:RUNNER_TEMP/CommonLibF4"
+          if (-not (Test-Path "$env:RUNNER_TEMP/CommonLibF4/CMakeLists.txt")) {
+            throw "CommonLibF4 clone missing CMakeLists.txt"
+          }
+
       - name: Configure
         working-directory: fallout
         shell: pwsh
-        run: cmake -S . -B build -D CMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+        run: >
+          cmake -S . -B build
+          -D CMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -D COMMONLIBF4_PATH="$env:RUNNER_TEMP/CommonLibF4"
 
       - name: Build
         working-directory: fallout
